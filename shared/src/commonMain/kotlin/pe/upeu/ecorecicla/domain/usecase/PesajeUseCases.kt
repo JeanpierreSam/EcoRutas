@@ -19,6 +19,7 @@ fun validarPesaje(p: Pesaje): Map<String, String> = buildMap {
     if (p.pesoBruto <= 0) put("pesoBruto", "El peso bruto debe ser mayor que cero")
     if (p.tara < 0) put("tara", "La tara no puede ser negativa")
     else if (p.pesoBruto > 0 && p.pesoBruto - p.tara <= 0) put("tara", "La tara debe ser menor que el peso bruto")
+    if (p.humedadEstimada !in 0.0..100.0) put("humedadEstimada", "La humedad debe estar entre 0 y 100 %")
     if (p.observacion.length > 250) put("observacion", "Maximo 250 caracteres")
 }
 

@@ -36,6 +36,7 @@ data class FormularioPesaje(
     val pesoBruto: String = "",
     val tara: String = "",
     val observacion: String = "",
+    val humedad: String = "",
     val errores: Map<String, String> = emptyMap(),
     val mensaje: String? = null,
     val guardando: Boolean = false
@@ -93,7 +94,7 @@ class DetalleViewModel(
     }
 
     fun editar(p: Pesaje) = local.update {
-        it.copy(formulario = FormularioPesaje(p, p.material, p.pesoBruto.toString(), p.tara.toString(), p.observacion))
+        it.copy(formulario = FormularioPesaje(p, p.material, p.pesoBruto.toString(), p.tara.toString(), p.observacion, p.humedadEstimada.toString()))
     }
 
     fun cambiarFormulario(cambio: (FormularioPesaje) -> FormularioPesaje) =
@@ -106,11 +107,13 @@ class DetalleViewModel(
         val f = local.value.formulario ?: return
         val bruto = f.pesoBruto.replace(',', '.').toDoubleOrNull()
         val tara = f.tara.replace(',', '.').toDoubleOrNull()
-        if (bruto == null || tara == null) {
+        val humedad = f.humedad.replace(',', '.').toDoubleOrNull()
+        if (bruto == null || tara == null || humedad == null) {
             cambiarFormulario {
                 it.copy(errores = buildMap {
                     if (bruto == null) put("pesoBruto", "Ingrese un numero")
                     if (tara == null) put("tara", "Ingrese un numero")
+                    if (humedad == null) put("humedadEstimada", "Ingrese un numero")
                 })
             }
             return
@@ -122,7 +125,7 @@ class DetalleViewModel(
         )
         // Neto provisional solo para mostrar mientras esta pendiente; el definitivo lo calcula el servicio.
         val pesaje = base.copy(material = f.material, pesoBruto = bruto, tara = tara, pesoNeto = bruto - tara,
-            observacion = f.observacion.trim())
+            observacion = f.observacion.trim(), humedadEstimada = humedad)
         local.update { it.copy(formulario = f.copy(guardando = true, errores = emptyMap())) }
         viewModelScope.launch {
             val resultado = if (f.editando == null) registrar(pesaje) else corregir(pesaje)

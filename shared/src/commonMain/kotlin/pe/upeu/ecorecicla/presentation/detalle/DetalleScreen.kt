@@ -124,6 +124,9 @@ private fun Formulario(f: FormularioPesaje, vm: DetalleViewModel) {
             Campo("Tara (kg)", f.tara, f.errores["tara"], numerico = true) { v ->
                 vm.cambiarFormulario { it.copy(tara = v, errores = it.errores - "tara") }
             }
+            Campo("Humedad estimada (%)", f.humedad, f.errores["humedadEstimada"], numerico = true) { v ->
+                vm.cambiarFormulario { it.copy(humedad = v, errores = it.errores - "humedadEstimada") }
+            }
             Campo("Observacion", f.observacion, f.errores["observacion"]) { v ->
                 vm.cambiarFormulario { it.copy(observacion = v, errores = it.errores - "observacion") }
             }
@@ -164,7 +167,7 @@ private fun FilaPesaje(p: Pesaje, puedeCorregir: Boolean, puedeAnular: Boolean, 
                     anulado != null -> Text("ANULADO", color = MaterialTheme.colorScheme.error)
                 }
             }
-            Text("Bruto ${p.pesoBruto} · tara ${p.tara} · ${p.operario} · ${p.fechaHora.take(16).replace('T', ' ')}",
+            Text("Bruto ${p.pesoBruto} · tara ${p.tara} · humedad ${p.humedadEstimada} % · ${p.operario} · ${p.fechaHora.take(16).replace('T', ' ')}",
                 style = MaterialTheme.typography.bodySmall)
             if (p.id < 0) Text("Id local provisional: ${p.id}", style = MaterialTheme.typography.bodySmall)
             if (p.observacion.isNotBlank()) Text(p.observacion, style = MaterialTheme.typography.bodySmall)
