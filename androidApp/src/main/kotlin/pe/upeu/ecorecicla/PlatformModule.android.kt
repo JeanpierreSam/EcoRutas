@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.channels.awaitClose
@@ -36,14 +35,14 @@ class MonitorRedAndroid(contexto: Context) : MonitorRed {
     override val conectado: Flow<Boolean> = callbackFlow {
         fun hayRed() = cm.getNetworkCapabilities(cm.activeNetwork)
             ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        // Red por defecto: al perderla (modo avion) llega onLost; si otra la reemplaza, llega onAvailable.
+        // Consultar activeNetwork dentro de onLost no sirve: en ese instante aun reporta la red que se va.
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) { trySend(true) }
-            override fun onLost(network: Network) { trySend(hayRed()) }
+            override fun onLost(network: Network) { trySend(false) }
         }
         trySend(hayRed())
-        cm.registerNetworkCallback(
-            NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), callback
-        )
+        cm.registerDefaultNetworkCallback(callback)
         awaitClose { cm.unregisterNetworkCallback(callback) }
     }
 }
