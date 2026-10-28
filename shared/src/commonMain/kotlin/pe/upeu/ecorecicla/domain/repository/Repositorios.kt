@@ -2,6 +2,7 @@ package pe.upeu.ecorecicla.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.model.Pesaje
 import pe.upeu.ecorecicla.domain.model.PuntoAcopio
 import pe.upeu.ecorecicla.domain.model.Ruta
@@ -21,7 +22,7 @@ interface SesionRepository {
 
 interface RutaRepository {
     fun observarRuta(): Flow<Ruta?>
-    fun observarPuntos(): Flow<List<PuntoAcopio>>
+    fun observarPuntos(filtro: FiltroPuntos = FiltroPuntos()): Flow<List<PuntoAcopio>>
     fun observarPunto(id: Long): Flow<PuntoAcopio?>
     fun observarUltimaSincronizacion(): Flow<Long?>
     /** Baja la ruta del dia y los pesajes de sus puntos. Devuelve cuantos pesajes recibio. */

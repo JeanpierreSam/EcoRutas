@@ -6,6 +6,7 @@ import pe.upeu.ecorecicla.data.remote.EcoApi
 import pe.upeu.ecorecicla.data.remote.dto.aDominio
 import pe.upeu.ecorecicla.domain.model.ErrorApi
 import pe.upeu.ecorecicla.domain.model.ErrorApiException
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.repository.RutaRepository
 
 /** La base local es la fuente de verdad; el servicio solo la mantiene al dia. */
@@ -16,7 +17,7 @@ class RutaRepositorioOffline(
 ) : RutaRepository {
 
     override fun observarRuta() = local.observarRuta()
-    override fun observarPuntos() = local.observarPuntos()
+    override fun observarPuntos(filtro: FiltroPuntos) = local.observarPuntos(filtro)
     override fun observarPunto(id: Long) = local.observarPunto(id)
     override fun observarUltimaSincronizacion(): Flow<Long?> = local.observarUltimaSincronizacion()
 

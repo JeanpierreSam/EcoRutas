@@ -13,6 +13,7 @@ import pe.upeu.ecorecicla.db.EcoDb
 import pe.upeu.ecorecicla.db.ListarPuntos
 import pe.upeu.ecorecicla.db.ObtenerPunto
 import pe.upeu.ecorecicla.domain.model.EstadoPesaje
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.model.Pesaje
 import pe.upeu.ecorecicla.domain.model.PuntoAcopio
 import pe.upeu.ecorecicla.domain.model.Ruta
@@ -33,7 +34,8 @@ class DatosLocales(private val db: EcoDb) {
     fun observarRuta(): Flow<Ruta?> = db.rutaQueries.obtenerRuta { id, fecha, cerrada -> Ruta(id, fecha, cerrada == 1L) }
         .asFlow().mapToOneOrNull(io)
 
-    fun observarPuntos(): Flow<List<PuntoAcopio>> = db.puntoQueries.listarPuntos().asFlow().mapToList(io)
+    fun observarPuntos(filtro: FiltroPuntos = FiltroPuntos()): Flow<List<PuntoAcopio>> =
+        db.puntoQueries.listarPuntos(filtro.texto.trim(), if (filtro.soloPendientes) 1L else 0L).asFlow().mapToList(io)
         .map { filas -> filas.map { it.aDominio() } }
 
     fun observarPunto(id: Long): Flow<PuntoAcopio?> = db.puntoQueries.obtenerPunto(id).asFlow().mapToOneOrNull(io)

@@ -13,12 +13,20 @@ CREATE TABLE punto (
 
 -- «atendido» se deriva de los pesajes locales vigentes: un pesaje hecho sin red
 -- ya marca el punto como pesado, aunque el servicio todavia no lo conozca.
+-- SC-A: el buscador (:texto, vacio = todos) y «Solo pendientes de pesar» se resuelven aqui,
+-- en la base local: funcionan sin conexion y el composable no recorre la lista.
 listarPuntos:
 SELECT p.*,
        (p.omitido = 1 OR EXISTS(
             SELECT 1 FROM pesaje s
             WHERE s.punto_id = p.id AND s.ruta_id = p.ruta_id AND s.anulado = 0)) AS atendido
 FROM punto p
+WHERE (p.razon_social LIKE '%' || :texto || '%'
+       OR p.direccion LIKE '%' || :texto || '%'
+       OR p.zona LIKE '%' || :texto || '%')
+  AND (:soloPendientes = 0 OR (p.omitido = 0 AND NOT EXISTS(
+            SELECT 1 FROM pesaje s
+            WHERE s.punto_id = p.id AND s.ruta_id = p.ruta_id AND s.anulado = 0)))
 ORDER BY p.secuencia ASC;
 
 obtenerPunto:

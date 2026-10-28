@@ -1,10 +1,11 @@
 package pe.upeu.ecorecicla.domain.usecase
 
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.repository.RutaRepository
 
 class ObservarRutaUseCase(private val repo: RutaRepository) {
     fun ruta() = repo.observarRuta()
-    fun puntos() = repo.observarPuntos()
+    fun puntos(filtro: FiltroPuntos = FiltroPuntos()) = repo.observarPuntos(filtro)
     fun punto(id: Long) = repo.observarPunto(id)
     fun ultimaSincronizacion() = repo.observarUltimaSincronizacion()
 }
