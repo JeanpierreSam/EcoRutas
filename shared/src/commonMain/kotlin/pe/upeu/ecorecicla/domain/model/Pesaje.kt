@@ -13,5 +13,7 @@ data class Pesaje(
     val pendiente: Boolean,
     // Agregados (la seccion 4.5 lo permite): el servicio necesita la ruta y la observacion.
     val rutaId: Long = 0,
-    val observacion: String = ""
+    val observacion: String = "",
+    /** SC-C: porcentaje estimado de humedad (0 a 100). */
+    val humedadEstimada: Double = 0.0
 )

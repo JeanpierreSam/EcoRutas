@@ -15,7 +15,8 @@ CREATE TABLE pesaje (
     observacion      TEXT    NOT NULL DEFAULT '',
     anulado          INTEGER NOT NULL DEFAULT 0,
     motivo_anulacion TEXT,
-    pendiente        INTEGER NOT NULL DEFAULT 0
+    pendiente        INTEGER NOT NULL DEFAULT 0,
+    humedad_estimada REAL    NOT NULL DEFAULT 0   -- SC-C (migracion 1.sqm)
 );
 
 listarDePunto:
@@ -33,14 +34,14 @@ SELECT * FROM pesaje WHERE id = ?;
 
 guardarPesaje:
 INSERT OR REPLACE INTO pesaje(id, ruta_id, punto_id, fecha_hora, material, peso_bruto, tara, peso_neto,
-                              operario, observacion, anulado, motivo_anulacion, pendiente)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                              operario, observacion, anulado, motivo_anulacion, pendiente, humedad_estimada)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- La bajada no pisa una correccion local que aun no se envio.
 guardarSiNoExiste:
 INSERT OR IGNORE INTO pesaje(id, ruta_id, punto_id, fecha_hora, material, peso_bruto, tara, peso_neto,
-                             operario, observacion, anulado, motivo_anulacion, pendiente)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);
+                             operario, observacion, anulado, motivo_anulacion, pendiente, humedad_estimada)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?);
 
 borrarPesaje:
 DELETE FROM pesaje WHERE id = ?;

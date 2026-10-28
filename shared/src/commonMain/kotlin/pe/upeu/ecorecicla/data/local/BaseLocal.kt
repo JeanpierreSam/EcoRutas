@@ -61,7 +61,7 @@ class DatosLocales(private val db: EcoDb) {
     fun guardar(p: Pesaje) = db.pesajeQueries.guardarPesaje(
         p.id, p.rutaId, p.puntoId, p.fechaHora, p.material, p.pesoBruto, p.tara, p.pesoNeto, p.operario,
         p.observacion, if (p.estado is EstadoPesaje.Anulado) 1L else 0L,
-        (p.estado as? EstadoPesaje.Anulado)?.motivo, if (p.pendiente) 1L else 0L
+        (p.estado as? EstadoPesaje.Anulado)?.motivo, if (p.pendiente) 1L else 0L, p.humedadEstimada
     )
 
     /** La fila provisional se sustituye por la definitiva en la misma transaccion: ni duplicada ni perdida. */
@@ -93,7 +93,7 @@ class DatosLocales(private val db: EcoDb) {
             pesajes.forEach { p ->
                 db.pesajeQueries.guardarSiNoExiste(p.id, p.rutaId, p.puntoId, p.fechaHora, p.material, p.pesoBruto,
                     p.tara, p.pesoNeto, p.operario, p.observacion, if (p.estado is EstadoPesaje.Anulado) 1L else 0L,
-                    (p.estado as? EstadoPesaje.Anulado)?.motivo)
+                    (p.estado as? EstadoPesaje.Anulado)?.motivo, p.humedadEstimada)
             }
             db.sincronizacionQueries.guardarUltima(instante)
         }
@@ -109,12 +109,13 @@ class DatosLocales(private val db: EcoDb) {
 
 private fun filaAPesaje(
     id: Long, rutaId: Long, puntoId: Long, fechaHora: String, material: String, pesoBruto: Double, tara: Double,
-    pesoNeto: Double, operario: String, observacion: String, anulado: Long, motivo: String?, pendiente: Long
+    pesoNeto: Double, operario: String, observacion: String, anulado: Long, motivo: String?, pendiente: Long,
+    humedad: Double
 ) = Pesaje(
     id = id, puntoId = puntoId, fechaHora = fechaHora, material = material, pesoBruto = pesoBruto, tara = tara,
     pesoNeto = pesoNeto, operario = operario,
     estado = if (anulado == 1L) EstadoPesaje.Anulado(motivo.orEmpty()) else EstadoPesaje.Registrado,
-    pendiente = pendiente == 1L, rutaId = rutaId, observacion = observacion
+    pendiente = pendiente == 1L, rutaId = rutaId, observacion = observacion, humedadEstimada = humedad
 )
 
 private fun ListarPuntos.aDominio() =

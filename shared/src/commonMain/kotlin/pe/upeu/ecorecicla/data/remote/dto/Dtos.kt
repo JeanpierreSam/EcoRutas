@@ -75,6 +75,7 @@ data class PesajeDto(
     val pesoNeto: Double,
     @SerialName("operario") val usuario: String,
     val observacion: String? = null,
+    val humedadEstimada: Double = 0.0,
     val anulado: Boolean = false,
     val motivoAnulacion: String? = null
 )
@@ -87,7 +88,8 @@ data class PesajeRequestDto(
     val material: String,
     val pesoBruto: Double,
     val tara: Double,
-    val observacion: String
+    val observacion: String,
+    val humedadEstimada: Double
 )
 
 @Serializable
@@ -95,7 +97,8 @@ data class CorreccionRequestDto(
     val material: String,
     val pesoBruto: Double,
     val tara: Double,
-    val observacion: String
+    val observacion: String,
+    val humedadEstimada: Double
 )
 
 // ---- Conversion al dominio: el dominio no conoce @Serializable ----
@@ -116,9 +119,10 @@ fun PesajeDto.aDominio() = Pesaje(
     estado = if (anulado) EstadoPesaje.Anulado(motivoAnulacion.orEmpty()) else EstadoPesaje.Registrado,
     pendiente = false,
     rutaId = rutaId,
-    observacion = observacion.orEmpty()
+    observacion = observacion.orEmpty(),
+    humedadEstimada = humedadEstimada
 )
 
-fun Pesaje.aPeticion() = PesajeRequestDto(rutaId, puntoId, material, pesoBruto, tara, observacion)
+fun Pesaje.aPeticion() = PesajeRequestDto(rutaId, puntoId, material, pesoBruto, tara, observacion, humedadEstimada)
 
-fun Pesaje.aCorreccion() = CorreccionRequestDto(material, pesoBruto, tara, observacion)
+fun Pesaje.aCorreccion() = CorreccionRequestDto(material, pesoBruto, tara, observacion, humedadEstimada)

@@ -1,0 +1,2 @@
+-- SC-C: las instalaciones que ya tienen la base (version 1) reciben la columna sin perder datos.
+ALTER TABLE pesaje ADD COLUMN humedad_estimada REAL NOT NULL DEFAULT 0;
