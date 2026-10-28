@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EcoAPI corre en local por HTTP (sin TLS). Android 9+ bloquea el trafico
+     sin cifrar por defecto: se permite solo hacia 10.0.2.2, el alias del PC
+     anfitrion visto desde el emulador. El resto de dominios sigue exigiendo HTTPS. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
