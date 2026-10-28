@@ -16,6 +16,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.model.PuntoAcopio
 import pe.upeu.ecorecicla.presentation.theme.haceCuanto
 
@@ -97,8 +100,12 @@ fun RutaScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            Filtros(ui.filtro, vm::buscar, vm::alternarSoloPendientes)
             when {
                 ui.cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                ui.puntos.isEmpty() && ui.ruta != null -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+                    Text("Ningun punto coincide con el filtro")
+                }
                 ui.puntos.isEmpty() -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text("No tiene una ruta asignada para hoy o aun no se descargo. Pulse Sincronizar.")
                 }
@@ -111,6 +118,24 @@ fun RutaScreen(
                 Button(onClick = vm::cerrar, modifier = Modifier.fillMaxWidth().padding(16.dp)) { Text("Cerrar ruta") }
             }
         }
+    }
+}
+
+@Composable
+private fun Filtros(filtro: FiltroPuntos, alBuscar: (String) -> Unit, alAlternar: () -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        OutlinedTextField(
+            value = filtro.texto,
+            onValueChange = alBuscar,
+            label = { Text("Buscar por razon social, direccion o zona") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        FilterChip(
+            selected = filtro.soloPendientes,
+            onClick = alAlternar,
+            label = { Text("Solo pendientes de pesar") }
+        )
     }
 }
 

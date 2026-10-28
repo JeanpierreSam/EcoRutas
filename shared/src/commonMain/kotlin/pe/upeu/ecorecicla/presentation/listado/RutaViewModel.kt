@@ -2,15 +2,18 @@ package pe.upeu.ecorecicla.presentation.listado
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pe.upeu.ecorecicla.domain.model.FiltroPuntos
 import pe.upeu.ecorecicla.domain.model.PuntoAcopio
 import pe.upeu.ecorecicla.domain.model.Ruta
 import pe.upeu.ecorecicla.domain.repository.MonitorRed
@@ -31,10 +34,16 @@ data class RutaUiState(
     val pendientes: Long = 0,
     val sincronizando: Boolean = false,
     val conectado: Boolean = true,
-    val aviso: Aviso? = null
+    val aviso: Aviso? = null,
+    val filtro: FiltroPuntos = FiltroPuntos()
 )
 
-private data class Transitorio(val sincronizando: Boolean = false, val conectado: Boolean = true, val aviso: Aviso? = null)
+private data class Transitorio(
+    val sincronizando: Boolean = false,
+    val conectado: Boolean = true,
+    val aviso: Aviso? = null,
+    val filtro: FiltroPuntos = FiltroPuntos()
+)
 
 /** La lista sale SIEMPRE de la base local (Flow de SQLDelight); la red solo la actualiza. */
 class RutaViewModel(
@@ -49,14 +58,18 @@ class RutaViewModel(
     private val transitorio = MutableStateFlow(Transitorio())
     private var primeraEmision = true
 
+    // SC-A: cada cambio de filtro abre una nueva consulta local; el ViewModel no filtra la lista.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val puntos = transitorio.map { it.filtro }.distinctUntilChanged().flatMapLatest { observar.puntos(it) }
+
     val ui: StateFlow<RutaUiState> = combine(
-        observar.ruta(), observar.puntos(), observar.ultimaSincronizacion(), pesajes.pendientes(), transitorio
+        observar.ruta(), puntos, observar.ultimaSincronizacion(), pesajes.pendientes(), transitorio
     ) { ruta, puntos, ultima, pendientes, t ->
         RutaUiState(
             // Carga solo mientras no hay nada local y la primera sincronizacion sigue en curso.
             cargando = puntos.isEmpty() && ultima == null && (t.sincronizando || primeraEmision),
             ruta = ruta, puntos = puntos, ultimaSincronizacion = ultima, pendientes = pendientes,
-            sincronizando = t.sincronizando, conectado = t.conectado, aviso = t.aviso
+            sincronizando = t.sincronizando, conectado = t.conectado, aviso = t.aviso, filtro = t.filtro
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RutaUiState())
 
@@ -96,6 +109,11 @@ class RutaViewModel(
                 .onFailure { e -> transitorio.update { it.copy(aviso = e.aErrorApi().aviso()) } }
         }
     }
+
+    fun buscar(texto: String) = transitorio.update { it.copy(filtro = it.filtro.copy(texto = texto)) }
+
+    fun alternarSoloPendientes() =
+        transitorio.update { it.copy(filtro = it.filtro.copy(soloPendientes = !it.filtro.soloPendientes)) }
 
     fun avisoMostrado() = transitorio.update { it.copy(aviso = null) }
 }
