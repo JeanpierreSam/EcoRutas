@@ -7,12 +7,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pe.upeu.ecorecicla.domain.model.PuntoAcopio
 import pe.upeu.ecorecicla.domain.model.Ruta
 import pe.upeu.ecorecicla.domain.repository.MonitorRed
+import pe.upeu.ecorecicla.domain.repository.SesionRepository
 import pe.upeu.ecorecicla.domain.usecase.CerrarRutaUseCase
 import pe.upeu.ecorecicla.domain.usecase.ObservarPesajesUseCase
 import pe.upeu.ecorecicla.domain.usecase.ObservarRutaUseCase
@@ -40,7 +42,8 @@ class RutaViewModel(
     pesajes: ObservarPesajesUseCase,
     private val sincronizar: SincronizarUseCase,
     private val cerrarRuta: CerrarRutaUseCase,
-    red: MonitorRed
+    red: MonitorRed,
+    sesiones: SesionRepository
 ) : ViewModel() {
 
     private val transitorio = MutableStateFlow(Transitorio())
@@ -58,13 +61,15 @@ class RutaViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RutaUiState())
 
     init {
-        // RF-A06: al abrir y cada vez que vuelve la senal, se sincroniza solo.
+        // RF-A06: al abrir, al iniciar cada turno y cada vez que vuelve la senal, se sincroniza solo.
         viewModelScope.launch {
-            red.conectado.distinctUntilChanged().collect { hay ->
-                transitorio.update { it.copy(conectado = hay) }
-                if (hay) sincronizarAhora()
-                primeraEmision = false
-            }
+            combine(red.conectado, sesiones.sesion.map { it?.usuario }) { hay, usuario -> hay to usuario }
+                .distinctUntilChanged()
+                .collect { (hay, usuario) ->
+                    transitorio.update { it.copy(conectado = hay) }
+                    if (hay && usuario != null) sincronizarAhora()
+                    primeraEmision = false
+                }
         }
     }
 
