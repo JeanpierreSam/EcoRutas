@@ -54,7 +54,7 @@ class EcoRutasTest {
             respond("""{"status":400,"message":"Datos invalidos","validationErrors":{"tara":"La tara debe ser menor"}}""",
                 HttpStatusCode.BadRequest, json)
         }
-        val e400 = assertFailsWith<ErrorApiException> { api400.registrar(PesajeRequestDto(2, 10, "X", 1.0, 2.0, "")) }
+        val e400 = assertFailsWith<ErrorApiException> { api400.registrar(PesajeRequestDto(2, 10, "X", 1.0, 2.0, "", 0.0)) }
         assertEquals(ErrorApi.Validacion(mapOf("tara" to "La tara debe ser menor"), "Datos invalidos"), e400.error)
 
         val api403 = apiSimulada({ expiro = true }) { respond("""{"status":403,"message":"Sin privilegio"}""", HttpStatusCode.Forbidden, json) }
