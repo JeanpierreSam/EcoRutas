@@ -1,0 +1,14 @@
+-- Una sola fila: instante (epoch ms) de la ultima sincronizacion completa.
+CREATE TABLE sincronizacion (
+    id     INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+    ultima INTEGER NOT NULL
+);
+
+guardarUltima:
+INSERT OR REPLACE INTO sincronizacion(id, ultima) VALUES (1, ?);
+
+leerUltima:
+SELECT ultima FROM sincronizacion WHERE id = 1;
+
+borrarSincronizacion:
+DELETE FROM sincronizacion;

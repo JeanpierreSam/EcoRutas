@@ -1,0 +1,16 @@
+-- Copia local de la ruta del dia: la pantalla principal lee SIEMPRE de aqui.
+-- Una sola fila: la ruta que se descargo en la ultima sincronizacion.
+CREATE TABLE ruta (
+    id      INTEGER NOT NULL PRIMARY KEY,
+    fecha   TEXT    NOT NULL,
+    cerrada INTEGER NOT NULL DEFAULT 0
+);
+
+obtenerRuta:
+SELECT * FROM ruta LIMIT 1;
+
+guardarRuta:
+INSERT OR REPLACE INTO ruta(id, fecha, cerrada) VALUES (?, ?, ?);
+
+borrarRutas:
+DELETE FROM ruta;
