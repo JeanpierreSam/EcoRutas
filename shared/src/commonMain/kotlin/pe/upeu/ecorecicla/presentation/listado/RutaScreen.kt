@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -67,7 +69,13 @@ fun RutaScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = vm::sincronizarAhora, enabled = !ui.sincronizando) { Text("Sincronizar") }
+                    // SC-D: el numero sale de contarPendientes (Flow de SQLDelight): cambia solo al registrar o sincronizar.
+                    BadgedBox(
+                        badge = { if (ui.pendientes > 0) Badge { Text("${ui.pendientes}") } },
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        TextButton(onClick = vm::sincronizarAhora, enabled = !ui.sincronizando) { Text("Sincronizar") }
+                    }
                     TextButton(onClick = alAbrirPerfil) { Text("Perfil") }
                 }
             )
@@ -88,13 +96,6 @@ fun RutaScreen(
                     if (ui.conectado) "En linea" else "Sin conexion",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (ui.conectado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                )
-            }
-            if (ui.pendientes > 0) {
-                Text(
-                    "${ui.pendientes} pesaje(s) pendiente(s) de envio",
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
             when {
