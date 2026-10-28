@@ -72,6 +72,13 @@ La sesión trae los privilegios del token. La interfaz solo **ofrece** lo que el
 - **Offline-first**: la pantalla principal observa `listarPuntos` (Flow de SQLDelight). Un pesaje sin red se guarda con `pendiente = 1` e id provisional negativo (`siguienteIdLocal`: `MIN(0, COALESCE(MIN(id), 0)) - 1`, válido con tabla vacía); el servicio solo emite ids positivos.
 - **Sincronización** (`SincronizarUseCase`): primero `enviarPendientes()` y después `descargar()`. La fila provisional se reemplaza por la definitiva en una transacción (`confirmarEnvio`), así no se duplica ni se pierde. Se dispara a mano («Sincronizar»), al iniciar sesión y al volver la conectividad (`MonitorRed`), con barra de progreso y resumen «Enviados / Recibidos».
 
+## SC-D — distintivo de pendientes
+
+El botón «Sincronizar» muestra un `Badge` con el número de pesajes pendientes de envío. El número sale de la consulta
+`contarPendientes` (`Pesaje.sq`) expuesta como `Flow` por `DatosLocales.observarCantidadPendientes()` → `ObservarPesajesUseCase.pendientes()`
+→ `RutaViewModel` (solo la combina en el `UiState`). No hay contador mantenido a mano: el valor cambia únicamente cuando una
+escritura toca la tabla `pesaje`, es decir, al registrar o al sincronizar.
+
 ## Pruebas (commonTest)
 
 `./gradlew :shared:testAndroidHostTest` — motor HTTP simulado (`MockEngine`) y SQLite en memoria (`JdbcSqliteDriver`):
