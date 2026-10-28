@@ -38,6 +38,7 @@ fun PerfilScreen(sesion: Sesion, pendientes: Long, alCerrarSesion: () -> Unit, a
             Text(sesion.nombre, style = MaterialTheme.typography.headlineSmall)
             Text("Usuario: ${sesion.usuario}")
             Text("Rol: ${sesion.rol}")
+            if (sesion.soloLectura) Text("Acceso de solo lectura", color = MaterialTheme.colorScheme.tertiary)
             Spacer(Modifier.height(12.dp))
             Text("Privilegios", style = MaterialTheme.typography.titleMedium)
             sesion.privilegios.sorted().forEach { Text("• $it") }

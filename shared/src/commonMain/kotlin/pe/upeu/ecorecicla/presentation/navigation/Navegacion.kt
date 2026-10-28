@@ -49,6 +49,7 @@ fun App(navegador: Navegador) {
             Pantalla.Ruta -> RutaScreen(
                 vm = koinViewModel(),
                 puedeCerrarRuta = actual.puede(Privilegio.RUTA_CERRAR),
+                soloLectura = actual.soloLectura,
                 alAbrirPunto = { navegador.ir(Pantalla.Detalle(it)) },
                 alAbrirPerfil = { navegador.ir(Pantalla.Perfil) }
             )

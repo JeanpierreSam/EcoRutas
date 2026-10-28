@@ -42,6 +42,7 @@ import pe.upeu.ecorecicla.presentation.theme.haceCuanto
 fun RutaScreen(
     vm: RutaViewModel,
     puedeCerrarRuta: Boolean,
+    soloLectura: Boolean,
     alAbrirPunto: (Long) -> Unit,
     alAbrirPerfil: () -> Unit
 ) {
@@ -76,6 +77,13 @@ fun RutaScreen(
     ) { relleno ->
         Column(Modifier.padding(relleno).fillMaxSize()) {
             if (ui.sincronizando) LinearProgressIndicator(Modifier.fillMaxWidth())
+            if (soloLectura) {
+                Text(
+                    "Acceso de solo lectura: puede consultar la ruta y los pesajes, no modificarlos",
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
